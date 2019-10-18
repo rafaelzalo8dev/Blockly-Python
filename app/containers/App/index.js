@@ -15,35 +15,30 @@ import HomePage from 'containers/HomePage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
-import Footer from 'components/Footer';
+import Toolbar from 'components/Toolbar';
+import Formulario from 'containers/Formulario/Loadable';
+import TutorView from 'containers/TutorView/Loadable';
 
 import GlobalStyle from '../../global-styles';
 
 const AppWrapper = styled.div`
-  max-width: calc(768px + 16px * 2);
-  margin: 0 auto;
-  display: flex;
-  min-height: 100%;
-  padding: 0 16px;
-  flex-direction: column;
 `;
 
 export default function App() {
   return (
     <AppWrapper>
       <Helmet
-        titleTemplate="%s - React.js Boilerplate"
-        defaultTitle="React.js Boilerplate"
+        titleTemplate="Python Tutor"
+        defaultTitle="Tutor de python"
       >
-        <meta name="description" content="A React.js Boilerplate application" />
+        <meta name="Tutor de python con blockly" content="Tutor de python con blockly" />
       </Helmet>
-      <Header />
+      <Toolbar currentCompany={{name: 'Rafa'}} />
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route path="/features" component={FeaturePage} />
-        <Route path="" component={NotFoundPage} />
+        <Route exact path="/formulario" component={Formulario} />
+        <Route exact path="/tutor" component={TutorView} />
       </Switch>
-      <Footer />
       <GlobalStyle />
     </AppWrapper>
   );
