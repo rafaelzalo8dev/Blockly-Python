@@ -1,6 +1,19 @@
 #blocklyDiv {
+  position: fixed;
   height: 50%;
-  width: 100%;
-  position: absolute;
-  bottom: 0;
+  width: 50%;
+}
+
+#codeContainer{
+  width: 50%;
+  height: 100%;
+  min-height: 500px;
+  margin-left: 50%;
+  background-color: 'red';
+  overflow-y: scroll;
+}
+
+#container-flex {
+  display: flex;
+  justify-content: space-between;
 }

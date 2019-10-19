@@ -12,12 +12,11 @@ import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
 
 import HomePage from 'containers/HomePage/Loadable';
-import FeaturePage from 'containers/FeaturePage/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Toolbar from 'components/Toolbar';
 import Formulario from 'containers/Formulario/Loadable';
 import TutorView from 'containers/TutorView/Loadable';
+import Progreso from 'containers/Progreso/Loadable';
 
 import GlobalStyle from '../../global-styles';
 
@@ -37,6 +36,7 @@ export default function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/formulario" component={Formulario} />
+        <Route exact path="/progreso" component={Progreso} />
         <Route exact path="/tutor" component={TutorView} />
       </Switch>
       <GlobalStyle />

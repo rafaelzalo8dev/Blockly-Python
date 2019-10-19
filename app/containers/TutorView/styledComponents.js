@@ -4,6 +4,7 @@ export const Instrucciones = styled.div`
   width: 100%;
   background: #ffffc7;
   display: inline-flex;
+  padding: 30px 20px;
 `;
 
 export const ToolContainer = styled.div``;
@@ -30,4 +31,10 @@ export const MidWidth = styled.div`
 export const Topic = styled.div`
   font-size: 50px;
   font-weight: bold;
+`;
+
+export const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
 `;

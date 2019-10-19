@@ -29,7 +29,7 @@ export function Formulario() {
       onChange={e => setName(e.target.value)}
       margin="normal"
     />
-    <h1 onClick={() => history.push('/tutor')}>IR AL TUTOR</h1>
+    <h1 onClick={() => history.push('/progreso')}>IR AL progreso</h1>
   </div>;
 }
 

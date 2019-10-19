@@ -33,14 +33,18 @@ class BlocklyComponent extends React.Component {
     }
 
     render() {
-        const { children } = this.props;
+        const { children, code } = this.props;
+        console.log('code en el blocklycomponent', code);
         console.log('children del component ', children);
-        return <React.Fragment>
+        return (<React.Fragment>
+          <div id="container-flex">
             <div ref={e => this.blocklyDiv = e} id="blocklyDiv" />
+            <textarea id="codeContainer" ref={e => this.codeContainer = e} value={code}/>
             <xml xmlns="https://developers.google.com/blockly/xml" is="blockly" style={{ display: 'none' }} ref={(toolbox) => { this.toolbox = toolbox; }}>
                 {children}
             </xml>
-        </React.Fragment>;
+          </div>
+        </React.Fragment>);
     }
 }
 
