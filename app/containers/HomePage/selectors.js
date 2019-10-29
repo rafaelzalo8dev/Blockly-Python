@@ -1,16 +1,24 @@
+import { createSelector } from 'reselect';
+
 /**
- * Homepage selectors
+ * Direct selector to the HomePage state domain
  */
 
-import { createSelector } from 'reselect';
-import { initialState } from './reducer';
+const selectHomePageDomain = state => state.homePage || null;
 
-const selectHome = state => state.home || initialState;
+/**
+ * Other specific selectors
+ */
 
-const makeSelectUsername = () =>
+/**
+ * Default selector used by HomePage
+ */
+
+const makeSelectHomePage = () =>
   createSelector(
-    selectHome,
-    homeState => homeState.username,
+    selectHomePageDomain,
+    substate => substate,
   );
 
-export { selectHome, makeSelectUsername };
+export default makeSelectHomePage;
+export { selectHomePageDomain };

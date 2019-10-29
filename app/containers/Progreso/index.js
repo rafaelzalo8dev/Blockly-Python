@@ -11,188 +11,209 @@ import { compose } from 'redux';
 import history from 'utils/history';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
+import clsx from 'clsx';
+
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import {Button} from '@material-ui/core';
+import Button from 'components/BlocklyButton';
 import AppBar from '@material-ui/core/AppBar';
+import TopicCard from 'components/TopicCard';
+import Grid from '@material-ui/core/Grid';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import IconButton from '@material-ui/core/IconButton';
 import {
-  Container
+  Container,
+  CardContainer,
+  CardsContainer,
 } from './styledComponents';
+import ItemsCarousel from 'react-items-carousel';
+import Toolbar from 'components/Toolbar';
+import {
+  apiSuccesAction,
+  apiErrorAction,
+  loading,
+} from 'containers/App/actions';
+import {get} from 'utils/request';
 
 const useStyles = makeStyles(theme => ({
   root: {
    width: '100%',
    padding: 30,
-   overflowX: 'auto',
+   marginTop: '40px',
  },
  table: {
    minWidth: '100%',
  },
+ card: {
+   maxWidth: 360,
+   minWidth: 300,
+ },
+ media: {
+   height: 0,
+   paddingTop: '56.25%', // 16:9
+ },
+ expand: {
+   transform: 'rotate(270deg)',
+   backgroundColor: 'green',
+   position: 'absolute',
+   right: '4px',
+   marginLeft: 'auto',
+   transition: theme.transitions.create('transform', {
+     duration: theme.transitions.duration.shortest,
+   }),
+ },
+ expandLeft: {
+   transform: 'rotate(90deg)',
+   position: 'absolute',
+   left: '4px',
+   backgroundColor: 'green',
+   marginLeft: 'auto',
+   transition: theme.transitions.create('transform', {
+     duration: theme.transitions.duration.shortest,
+   }),
+ },
+ avatar: {
+   backgroundColor: 'black',
+ },
 }));
 
-export function Progreso() {
+export function Progreso({ dispatch }) {
   const classes = useStyles();
-  const [topics, setTopics] = useState([{
-    name: 'Tema1',
-    exercises: [{
-      topic: 'Maths',
-      description: 'Enable some math calcs',
-      instructions: [
-        'Create a variable called base.',
-        'Set value to the base variable as : 20.',
-        'Create a variable called height.',
-        'Set value to the base variable as : 5.',
-        'Use the area form:  (base * height)/2.',
-        'Print the area for the result.',
-        'Your result might be: 50.'
-      ],
-      name: 'Calculate the area of a triangle.',
-      hints: [
-        'To create a variable you have to access to the Variables category and choose Create Variable.',
-        'To create some calcs you have to access to the Math category and choose a block for math operations.',
-        'To perform print functions you need to access to the Text category and select Print.'
-      ],
-      solutions: [["rafa = None", "rafa = 'rafa1231'", "print(rafa)"]],
-      estimatedTime: 500,
-      complexity: 4,
-      bestCalification: 4
-    },{
-      topic: 'Maths',
-      description: 'Enable some math calcs',
-      instructions: [
-        'Create a variable called base.',
-        'Set value to the base variable as : 20.',
-        'Create a variable called height.',
-        'Set value to the base variable as : 5.',
-        'Use the area form:  (base * height)/2.',
-        'Print the area for the result.',
-        'Your result might be: 50.'
-      ],
-      name: 'Calculate the area of a triangle.',
-      hints: [
-        'To create a variable you have to access to the Variables category and choose Create Variable.',
-        'To create some calcs you have to access to the Math category and choose a block for math operations.',
-        'To perform print functions you need to access to the Text category and select Print.'
-      ],
-      solutions: [["rafa = None", "rafa = 'rafa1231'", "print(rafa)"]],
-      estimatedTime: 500,
-      complexity: 4,
-    },{
-      topic: 'Maths',
-      description: 'Enable some math calcs',
-      instructions: [
-        'Create a variable called base.',
-        'Set value to the base variable as : 20.',
-        'Create a variable called height.',
-        'Set value to the base variable as : 5.',
-        'Use the area form:  (base * height)/2.',
-        'Print the area for the result.',
-        'Your result might be: 50.'
-      ],
-      name: 'Calculate the area of a triangle.',
-      hints: [
-        'To create a variable you have to access to the Variables category and choose Create Variable.',
-        'To create some calcs you have to access to the Math category and choose a block for math operations.',
-        'To perform print functions you need to access to the Text category and select Print.'
-      ],
-      solutions: [["rafa = None", "rafa = 'rafa1231'", "print(rafa)"]],
-      estimatedTime: 500,
-      bestCalification: 2,
-      complexity: 4,
-    },{
-      topic: 'Maths',
-      description: 'Enable some math calcs',
-      instructions: [
-        'Create a variable called base.',
-        'Set value to the base variable as : 20.',
-        'Create a variable called height.',
-        'Set value to the base variable as : 5.',
-        'Use the area form:  (base * height)/2.',
-        'Print the area for the result.',
-        'Your result might be: 50.'
-      ],
-      name: 'Calculate the area of a triangle.',
-      hints: [
-        'To create a variable you have to access to the Variables category and choose Create Variable.',
-        'To create some calcs you have to access to the Math category and choose a block for math operations.',
-        'To perform print functions you need to access to the Text category and select Print.'
-      ],
-      solutions: [["rafa = None", "rafa = 'rafa1231'", "print(rafa)"]],
-      estimatedTime: 500,
-      complexity: 4,
-      bestCalification: 4
-    }],
-  }, {
-    name: 'Tema2',
-    exercises: [{
-      name: 'Ejercicio2',
-      description: 'De que se trata el ejercicio2',
-      bestCalification: 5,
-      complexity: 5,
-      estimatedTime: 600,
-    }]
-  }]);
-  const [selectedTopic, setSelectedTopic] = useState({});
-
+  const [topics, setTopics] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
   useEffect(() => {
-    setSelectedTopic(topics[0]);
+    dispatch(loading());
+    const filter = {
+      filter: {
+      include: {
+        relation: 'exercises'
+      }
+    }
+    };
+    get({
+      url: 'http://localhost:3001/api/topics?filter=%7B%20%20%20%22include%22%3A%20%7B%20%20%20%20%20%22relation%22%3A%20%22exercises%22%2C%20%20%20%20%20%22scope%22%3A%20%7B%20%20%20%20%20%20%20%22include%22%3A%20%5B%20%20%20%20%20%20%20%7B%22relation%22%3A%22hints%22%7D%2C%20%20%20%20%20%20%20%7B%22relation%22%3A%22solutions%22%7D%2C%20%20%20%20%20%20%20%7B%22relation%22%3A%22instructions%22%2C%20%20%20%20%20%20%20%20%20%22scope%22%3A%20%7B%20%20%20%20%20%20%20%20%20%20%20%22order%22%3A%22index%22%20%20%20%20%20%20%20%20%20%7D%20%20%20%20%20%20%20%7D%20%20%20%20%20%5D%20%20%20%20%20%20%20%7D%20%20%20%7D%20%7D'
+    })
+    .then(result => {
+        // if(result && result.id) {
+        //   dispatch(apiSuccesAction());
+        //   localStorage.setItem('user', JSON.stringify(result));
+        //   history.push('/progreso');
+        // }
+        dispatch(apiSuccesAction());
+        setTopics(result);
+    })
+    .catch(err => {
+      dispatch(apiErrorAction('Error fetching topics'));
+    });
   }, []);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const start = (rowSelected) => {
+  const start = (rowSelected, idx) => {
+    console.log('rowSelected ', rowSelected);
     history.push({
       pathname: '/tutor',
-      exercise: rowSelected
+      exercise: rowSelected,
+      index: idx,
+      isLastExercise: selectedTopic.exercises.length - 1 == idx,
     });
-  }
+  };
+
+  const changeActiveItem = (item) => {
+    setActiveItemIndex(item);
+  };
 
   return (
+    <React.Fragment>
+    <Toolbar />
+
     <Container>
-      <Paper className={classes.root}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell align="center">Description</TableCell>
-              <TableCell align="center">Complexity</TableCell>
-              <TableCell align="center">Estimated Time</TableCell>
-              <TableCell align="center">Best Calification</TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {selectedTopic && selectedTopic.exercises && selectedTopic.exercises.map(row => (
-              <TableRow key={row.name}>
-                <TableCell component="th" scope="row">
-                  {row.name}
-                </TableCell>
-                <TableCell align="center">{row.description}</TableCell>
-                <TableCell align="center">{row.complexity}</TableCell>
-                <TableCell align="center">{row.estimatedTime} seconds</TableCell>
-                <TableCell align="center">{row.bestCalification} stars</TableCell>
-                <TableCell align="center">
-                  <Button variant="contained" color="primary" onClick={() => start(row)}>Try Now!</Button>
-                </TableCell>
+      <ItemsCarousel
+        // Placeholder configurations
+        enablePlaceholder
+        numberOfPlaceholderItems={0}
+        minimumPlaceholderTime={1000}
+        placeholderItem={<div style={{ height: 200, background: '#900' }}>Placeholder</div>}
+
+        // Carousel configurations
+        numberOfCards={3}
+        gutter={12}
+        showSlither={true}
+        firstAndLastGutter={true}
+        freeScrolling={false}
+
+        // Active item configurations
+        requestToChangeActive={changeActiveItem}
+        activeItemIndex={activeItemIndex}
+        activePosition={'center'}
+
+        chevronWidth={24}
+        rightChevron={
+          <IconButton
+            className={classes.expand}
+            aria-label="show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        }
+        leftChevron={
+          <IconButton
+          className={classes.expandLeft}
+          aria-label="show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        }
+        outsideChevron={false}
+      >
+        {
+          topics.map((topic, index) => (
+            <TopicCard data={topic} isSelected={index == selectedTopic} onSelect={() => setSelectedTopic(topics[index])}/>
+          ))
+        }
+      </ItemsCarousel>
+      {selectedTopic &&
+        <Paper className={classes.root}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell align="center">Description</TableCell>
+                <TableCell align="center">Complexity</TableCell>
+                <TableCell align="center">Estimated Time</TableCell>
+                <TableCell align="center">Best Calification</TableCell>
+                <TableCell align="center"></TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
-    </Container>);
+            </TableHead>
+            <TableBody>
+              {selectedTopic && selectedTopic.exercises && selectedTopic.exercises.map((row, index) => (
+                <TableRow key={row.title}>
+                  <TableCell component="th" scope="row">
+                    {row.title}
+                  </TableCell>
+                  <TableCell>{row.description}</TableCell>
+                  <TableCell align="center">{row.complexity}</TableCell>
+                  <TableCell align="center">{row.estimatedTime} seconds</TableCell>
+                  <TableCell align="center">{row.exerciseResults ? row.exerciseResults[0].calification : 0} stars</TableCell>
+                  <TableCell align="center">
+                    <Button variant="contained" color="primary" onClick={() => start(row, index)} text={'Try Now!'}/>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      }
+
+    </Container>
+    </React.Fragment>
+  );
 }
 
 Progreso.propTypes = {
-  dispatch: PropTypes.func,
-};
-
-Progreso.propTypes = {
-  dispatch: PropTypes.func,
+  dispatch: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -201,6 +222,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+const withConnect = connect(
+  null,
+  mapDispatchToProps,
+);
+
 export default compose(
+  withConnect,
   memo,
 )(Progreso);

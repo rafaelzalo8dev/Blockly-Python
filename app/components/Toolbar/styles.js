@@ -9,22 +9,20 @@ export const MainContainer = styled.section`
   z-index: 3;
   padding: 0;
   top: 0;
-  height: 4.875rem;
-  background: white;
+  height: 140px;
+  background: black;
   border-bottom: 1px solid #f2f4f6;
   align-items: center;
 
   .logo {
     padding-left: 2rem;
+    max-width: 300px;
+    max-height: 110px;
   }
 
-  @media (max-width: 550px) {
-    padding-top: 0.5rem;
-    height: 5rem;
-    background-color: white;
-  }
   .right {
     display: flex;
+    margin-right: 30px;
     align-items: center;
   }
 `;
@@ -43,45 +41,17 @@ export const NotificationContainer = styled.div`
   background-color: ${props => (props.active ? "#e7eaee" : "#ffffff")};
   cursor: pointer;
 `;
-export const ProfileContainer = styled.div`
-  display: flex;
-  min-width: 179px;
-  height: 56px;
-  border-radius: 3px;
-  border: solid 1px #e0e3e5;
-  margin-right: 12px;
-  align-items: center;
 
-  .profile-caret {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-  }
-  .arrow {
-    cursor: pointer;
-    margin-left: 5px;
-  }
-  .company-name {
-    display: flex;
-    margin-left: auto;
-    h3 {
-      margin-bottom: 0 !important;
-      font-size: 22px !important;
-      padding: 0.5rem;
-    }
-  }
-  @media (max-width: 520px) {
-    min-width: auto;
-    border: none;
-    .company-name {
-      display: none;
-    }
-  }
+export const Name = styled.div`
+  color: white;
+  margin: 0 15px;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 export const useStyles = makeStyles(theme => ({
-  margin: {
-    margin: theme.spacing(0, 3)
+  image: {
+    margin: '0 !important',
   },
   padding: {
     padding: theme.spacing(0, 2)
@@ -94,5 +64,10 @@ export const useStyles = makeStyles(theme => ({
     width: "18px",
     height: "18px",
     color: "#fff"
-  }
+  },
+  avatar: {
+    margin: 10,
+    width: 30,
+    height: 30,
+  },
 }));

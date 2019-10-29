@@ -1,0 +1,154 @@
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100;
+  src: local('NeueMontreal Thin'), local('NeueMontreal-Thin'),
+    url('./NeueMontreal-Light.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Light.woff') format('woff'); /* Modern Browsers */
+}
+
+/* roboto-100italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100;
+  src: local('NeueMontreal Thin italic'), local('NeueMontreal-Thinitalic'),
+    url('./NeueMontreal-LightItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-LightItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-300normal - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: local('NeueMontreal Light'), local('NeueMontreal-Light'),
+    url('./NeueMontreal-Light.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Light.woff') format('woff'); /* Modern Browsers */
+}
+
+/* roboto-300italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 300;
+  src: local('NeueMontreal Light italic'), local('NeueMontreal-Lightitalic'),
+    url('./NeueMontreal-LightItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-LightItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-400normal - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: local('NeueMontreal Regular '), local('NeueMontreal-Regular'),
+    url('./NeueMontreal-Regular.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Regular.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-400italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: local('NeueMontreal Regular italic'), local('NeueMontreal-Regularitalic'),
+    url('./NeueMontreal-Italic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Italic.woff') format('woff'); /* Modern Browsers */
+}
+
+/* roboto-500normal - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: local('NeueMontreal Medium '), local('NeueMontreal-Medium'),
+    url('./NeueMontreal-Medium.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Medium.woff') format('woff'); /* Modern Browsers */
+}
+
+/* roboto-500italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 500;
+  src: local('NeueMontreal Medium italic'), local('NeueMontreal-Mediumitalic'),
+    url('./NeueMontreal-MediumItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-MediumItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-700normal - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: local('NeueMontreal Bold'), local('NeueMontreal-Bold'),
+    url('./NeueMontreal-Bold.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-Bold.woff') format('woff'); /* Modern Browsers */
+}
+
+/* roboto-700italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 700;
+  src: local('NeueMontreal Bold italic'), local('NeueMontreal-Bolditalic'),
+    url('./NeueMontreal-BoldItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-BoldItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-900normal - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: local('NeueMontreal Black '), local('NeueMontreal-Black'),
+    url('./NeueMontreal-BoldItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-BoldItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+/* roboto-900italic - latin */
+@font-face {
+  font-family: 'NeueMontreal';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 900;
+  src: local('NeueMontreal Black italic'), local('NeueMontreal-Blackitalic'),
+    url('./NeueMontreal-BoldItalic.woff2') format('woff2'),
+    /* Super Modern Browsers */ url('./NeueMontreal-BoldItalic.woff')
+      format('woff'); /* Modern Browsers */
+}
+
+body,
+html {
+  font-family: 'NeueMontreal', sans-serif;
+  font-weight: normal;
+  user-select: none;
+}
+/* h1,h2,h3,h4 {
+  font-family: 'NeueMontreal',Arial;
+  font-weight:medium;
+  font-style: medium;
+}
+.class{
+  font-family: 'NeueMontreal',Arial;
+  font-weight:normal;
+  font-style: normal;
+} */

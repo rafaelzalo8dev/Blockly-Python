@@ -8,12 +8,13 @@
  */
 
 import produce from 'immer';
-import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR } from './constants';
+import { LOADING, API_SUCCES, API_ERROR, CLOSE_SNACKBAR } from './constants';
 
 // The initial state of the App
 export const initialState = {
   loading: false,
   error: false,
+  showSnackbar: false,
   currentUser: false,
   userData: {
     repositories: false,
@@ -24,21 +25,26 @@ export const initialState = {
 const appReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case LOAD_REPOS:
-        draft.loading = true;
+      case API_SUCCES:
+        draft.loading = false;
         draft.error = false;
-        draft.userData.repositories = false;
         break;
 
-      case LOAD_REPOS_SUCCESS:
-        draft.userData.repositories = action.repos;
+      case API_ERROR:
+      console.log('entra al API_ERR' + action.error);
         draft.loading = false;
-        draft.currentUser = action.username;
+        draft.error = true;
+        draft.showSnackbar = true;
+        draft.message = action.error;
         break;
 
-      case LOAD_REPOS_ERROR:
-        draft.error = action.error;
-        draft.loading = false;
+      case LOADING:
+        draft.loading = true;
+        break;
+
+      case CLOSE_SNACKBAR:
+      console.log('cerrando');
+        draft.showSnackbar = false;
         break;
     }
   });

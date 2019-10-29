@@ -9,15 +9,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
-
+import history from 'utils/history';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectTutorView from './selectors';
 import reducer from './reducer';
 import Blockly from 'blockly';
 import BlocklyPython from 'blockly/python';
 import ContentDefault from 'utils/content';
-import {Button} from '@material-ui/core';
-import Skulpt from 'skulpt';
+import Button from 'components/BlocklyButton';
 import {
   Instrucciones,
   ToolContainer,
@@ -27,8 +26,12 @@ import {
   MidWidth,
   Topic,
   ButtonContainer,
+  TitleContainer,
 } from './styledComponents';
-import BlocklyComponent, { Block, Value, Field, Shadow, Category, Separator } from 'components/Blockly';
+import ResultDialog from 'components/ResultDialog';
+import BlocklyComponent from 'components/Blockly';
+import Toolbar from 'components/Toolbar';
+import StepperInstructions from 'components/StepperInstructions';
 export function TutorView(props) {
   useInjectReducer({ key: 'tutorView', reducer });
   const [toolboxCategories, setToolboxCategories] = useState([]);
@@ -40,26 +43,50 @@ export function TutorView(props) {
   const [hintTimes, setHintTimes] = useState(0);
   const [showToolContainer, setShowToolContainer] = useState(false);
   const [timeExpend, setTimeExpend] = useState(0);
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState(null);
+  const [calification, setCalification] = useState(0);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [showInstructions, setShowInstructions] = useState(true);
 
   useEffect(() => {
-    const exerciseProp = props.location.exercise;
+    console.log('props.location en tutor', props.location);
+    const exerciseProp = props.location ? props.location.exercise : null;
+    if(!exerciseProp) {
+      history.push('/progreso');
+    }
     setExercise(exerciseProp);
   }, []);
 
   useEffect(() => {
-    if(simpleWorkspace && simpleWorkspace.workspace)
+    if(simpleWorkspace && simpleWorkspace.workspace){
+      console.log('entra al if');
       simpleWorkspace.workspace.addChangeListener(generateCode);
+    }
   }, [simpleWorkspace]);
-
-  // setTimeout(function () {
-  //   if(showToolContainer) {
-  //     const newTime = timeExpend + 1;
-  //     setTimeExpend(newTime);
-  //   }
-  // }, 1000);
+  //
+  setTimeout(function () {
+    if(showToolContainer) {
+      if(timeExpend >= exercise.estimatedTime - 1) {
+        setShowToolContainer(false);
+        setDialogMessage(
+          <div>
+            <div>The time of this excersise was reached.</div>
+            <div>You should try with another excercise goint to the menú.</div>
+          </div>
+        );
+        setDialogTitle('Timeout, You should Try Again!');
+        setOpenDialog(true);
+        setTimeExpend(exercise.estimatedTime);
+      } else {
+        const newTime = timeExpend + 1;
+        setTimeExpend(newTime);
+      }
+    }
+  }, 1000);
   const generateCode = () => {
     const code1 = BlocklyPython.workspaceToCode(simpleWorkspace.workspace);
+    console.log('code1 ', code1);
     const array = code1.split("\n");
     setCode(code1);
     const cleanArray = [];
@@ -71,29 +98,67 @@ export function TutorView(props) {
 
   const testCode = () => {
     let isOK = false;
-    exercise.solutions.forEach(solution => {
-      if(solution.length == codeArray.length) {
-        let sameLineCounter = 0;
-        for(let i = 0; i < solution.length; i ++){
-          if(solution[i] == codeArray[i]) {
-            sameLineCounter+= 1;
+      if(exercise.solutions && exercise.solutions.length > 0) {
+        exercise.solutions.forEach(solution => {
+          if(solution.length == codeArray.length) {
+            let sameLineCounter = 0;
+            for(let i = 0; i < solution.length; i ++){
+              if(solution[i] == codeArray[i]) {
+                sameLineCounter+= 1;
+              }
+            }
+            if(sameLineCounter === solution.length) {
+              isOK = true;
+            }
           }
-        }
-        if(sameLineCounter === solution.length) {
-          isOK = true;
-        }
-      }
-    });
-    if(isOK){
-      alert('AL CIEN PARIENTE');
+      })
+
     } else {
-      alert('TE FALLA EN ALGO BATO');
+      isOK = false;
     }
+
+    if(isOK){
+      setDialogMessage(
+        <div>
+          <div>Your time was: {timeExpend}</div>
+          <div>Your calification is: {calification}</div>
+        </div>
+      );
+      setDialogTitle('Well done!');
+    } else {
+      if(exercise.hints && exercise.hints.length > hintTimes) {
+        setDialogMessage(
+          <div>
+            <div>You have {exercise.hints ? exercise.hints.length - hintTimes : 0 } more hints remaining or you should try with another excercise going to the menú</div>
+          </div>
+        );
+      } else {
+        setDialogMessage(
+          <div>
+            <div>You have not reached the point of this exercise.</div>
+            <div>You should try with another excercise going to the menú.</div>
+          </div>
+        );
+      }
+
+      setDialogTitle('Something is wrong!');
+    }
+    setOpenDialog(true);
   };
 
   const showHints = () => {
     setShowExerciseHints(true);
-    setHintTimes(hintTimes + 1);
+    if(hintTimes == exercise.hints.length) {
+      setDialogMessage(
+        <div>
+          <div>You should try with another excercise goint to the menú, or ask for help</div>
+        </div>
+      );
+      setDialogTitle("There are no more hints remaining for this exercise!");
+      setOpenDialog(true);
+    } else {
+      setHintTimes(hintTimes + 1);
+    }
   };
 
   const closeHint = () => {
@@ -102,61 +167,98 @@ export function TutorView(props) {
     }, 3000);
   };
 
+  const goToProgress = ()  => {
+    setOpenDialog(false);
+    const selectedTopic = localStorage.getItem('topicID');
+    history.push({
+      pathname: '/progreso',
+      topic: selectedTopic,
+    });
+  };
+
   return <div>
+    <Toolbar />
     <Topic>{exercise.topic}</Topic>
     <Instrucciones>
       <MidWidth>
-      <ExerciseTitle>{exercise.title}</ExerciseTitle>
-      <ExerciseInstruction>
-        <ExerciseTitle>Instructions</ExerciseTitle>
-        {
-          exercise.instructions &&
-            exercise.instructions.map((el, idx) => (
-              <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el} </ExerciseInstruction>
-            ))
-        }
-      </ExerciseInstruction>
-      <ExerciseInstruction>
-        {
-          showExerciseHints && exercise.hints &&
-          <React.Fragment>
-            <ExerciseTitle>Hints</ExerciseTitle>
-            {
-              exercise.hints.map((el, idx) => {
-                  if(hintTimes > idx) {
-                    return (
-                      <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el} </ExerciseInstruction>
-                    );
-                  }
-              })
-            }
-          </React.Fragment>
-        }
-      </ExerciseInstruction>
+        <ExerciseTitle>{exercise.name}</ExerciseTitle>
+        <ExerciseInstruction>
+          <ExerciseTitle>Instructions</ExerciseTitle>
+          {
+            exercise.instructions &&
+              exercise.instructions.map((el, idx) => (
+                <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el.text} </ExerciseInstruction>
+              ))
+          }
+          <Button variant="contained" color="primary" onClick={() => setShowInstructions(true)} text={'Show details'}/>
+        </ExerciseInstruction>
+        <ExerciseInstruction>
+          {
+            showExerciseHints && exercise.hints &&
+            <React.Fragment>
+              <ExerciseTitle>Hints</ExerciseTitle>
+              {
+                exercise.hints.map((el, idx) => {
+                    if(hintTimes > idx) {
+                      return (
+                        <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el.text} </ExerciseInstruction>
+                      );
+                    }
+                })
+              }
+            </React.Fragment>
+          }
+        </ExerciseInstruction>
       </MidWidth>
       <MidWidth>
         <ExerciseInstruction>
-          <ExerciseTitle>Time estimated: {exercise.time || 600} seconds</ExerciseTitle>
+          <ExerciseTitle>Time estimated: {exercise.estimatedTime || 600} seconds</ExerciseTitle>
           <ExerciseTitle>Time expend: {timeExpend} seconds</ExerciseTitle>
         </ExerciseInstruction>
         {!showToolContainer &&
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowToolContainer(true)}>Start!</Button>
+            <Button variant="contained" color="primary" onClick={() => setShowToolContainer(true)} text={'Start!'} />
           </ButtonContainer>
         }
         {showToolContainer &&
           <React.Fragment>
             <ButtonContainer>
-              <Button variant="contained" color="primary" onClick={() => setShowToolContainer(false)}>Pause!</Button>
-              <Button variant="contained" color="primary" onClick={generateCode}>Convert</Button>
-              <Button variant="contained" color="primary" onClick={showHints}>Hints</Button>
-              <Button variant="contained" color="primary" onClick={testCode}>Test</Button>
+              <Button variant="contained" color="primary" onClick={() => setShowToolContainer(false)} text={'Pause!'}/>
+              <Button variant="contained" color="primary" onClick={generateCode} text={'Convert'}/>
+              <Button variant="contained" color="primary" onClick={showHints} text={'Show Hint'}/>
+              <Button variant="contained" color="primary" onClick={testCode} text={'Test Code'}/>
             </ButtonContainer>
           </React.Fragment>
         }
 
       </MidWidth>
     </Instrucciones>
+    {showInstructions &&
+      <StepperInstructions
+        open={showInstructions}
+        handleClose={() => setShowInstructions(false)}
+        data={{instructions: exercise.instructions || []}}
+      />
+    }
+    { showToolContainer &&
+      <TitleContainer>
+        <MidWidth>
+          <ExerciseTitle>Blockly</ExerciseTitle>
+        </MidWidth>
+        <MidWidth>
+        <ExerciseTitle>Python code generated</ExerciseTitle>
+        </MidWidth>
+      </TitleContainer>
+    }
+    {openDialog &&
+      <ResultDialog
+        open={openDialog}
+        goToProgress={goToProgress}
+        handleClose={() => setOpenDialog(false)}
+        message={dialogMessage}
+        title={dialogTitle}
+      />
+    }
     {showToolContainer &&
       <ToolContainer>
         <BlocklyComponent
@@ -172,180 +274,7 @@ export function TutorView(props) {
             <xml xmlns="http://www.w3.org/1999/xhtml">
             </xml>
           `}
-        >
-          <Category name="Variables" colour="#a55b80" custom="VARIABLE" />
-          <Category name="Text" colour="#5ba58c">
-            <Block type="text">
-               <Field name="TEXT" />
-            </Block>
-            <Block type="text_print">
-               <Value name="TEXT">
-               </Value>
-            </Block>
-            <Block type="text_changeCase">
-               <Field name="CASE">UPPERCASE</Field>
-            </Block>
-            <Block type="text_append">
-               <Field name="VAR" id="]-wAnB=H71,Ke.IAnaJj">item</Field>
-               <Value name="TEXT">
-               </Value>
-            </Block>
-            <Block type="text_length">
-               <Value name="VALUE">
-               </Value>
-            </Block>
-            <Block type="text_getSubstring">
-               <mutation at1="true" at2="true" />
-               <Field name="WHERE1">FROM_START</Field>
-               <Field name="WHERE2">FROM_START</Field>
-               <Value name="STRING">
-                  <Block type="variables_get">
-                     <Field name="VAR" id="hap-HM`}wxFzYerZ3qXu">text</Field>
-                  </Block>
-               </Value>
-            </Block>
-            <Block type="text_indexOf">
-               <Field name="END">FIRST</Field>
-               <Value name="VALUE">
-               </Value>
-               <Value name="FIND">
-                  <Shadow type="text">
-                     <Field name="TEXT">abc</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="text_join">
-               <mutation items="2" />
-            </Block>
-            <Block type="text_charAt">
-               <mutation at="true" />
-               <Field name="WHERE">FROM_START</Field>
-               <Value name="VALUE">
-                  <Block type="variables_get">
-                     <Field name="VAR" id="hap-HM`}wxFzYerZ3qXu">text</Field>
-                  </Block>
-               </Value>
-            </Block>
-          </Category>
-          <Category name="Lists" colour="#745ba5">
-            <Block type="lists_create_with">
-               <mutation items="4" />
-            </Block>
-            <Block type="lists_indexOf">
-               <Field name="END">FIRST</Field>
-               <Value name="VALUE">
-                  <Block type="variables_get">
-                     <Field name="VAR" id="gDJGB;k/,rOcw;teB3So">list</Field>
-                  </Block>
-               </Value>
-            </Block>
-            <Block type="lists_repeat">
-               <Value name="NUM">
-                  <Shadow type="math_number">
-                     <Field name="NUM">5</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="lists_length" />
-            <Block type="lists_isEmpty" />
-
-            <Block type="lists_getIndex">
-               <mutation statement="false" at="true" />
-               <Field name="MODE">GET</Field>
-               <Field name="WHERE">FROM_START</Field>
-               <Value name="VALUE">
-                  <Block type="variables_get">
-                     <Field name="VAR" id="gDJGB;k/,rOcw;teB3So">list</Field>
-                  </Block>
-               </Value>
-            </Block>
-          </Category>
-          <sep />
-          <Category name="Math" colour="#5b67a5">
-            <Block type="math_round">
-               <Field name="OP">ROUND</Field>
-               <Value name="NUM">
-                  <Shadow type="math_number">
-                     <Field name="NUM">3.1</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="math_number">
-               <Field name="NUM">0</Field>
-            </Block>
-            <Block type="math_single">
-               <Field name="OP">ROOT</Field>
-               <Value name="NUM">
-                  <Shadow type="math_number">
-                     <Field name="NUM">9</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="math_constant">
-               <Field name="CONSTANT">PI</Field>
-            </Block>
-            <Block type="math_arithmetic">
-               <Field name="OP">ADD</Field>
-            </Block>
-            <Block type="math_on_list">
-               <mutation op="SUM" />
-               <Field name="OP">SUM</Field>
-            </Block>
-            <Block type="math_modulo">
-            </Block>
-            <Block type="math_random_int">
-               <Value name="FROM">
-                  <Shadow type="math_number">
-                     <Field name="NUM">1</Field>
-                  </Shadow>
-               </Value>
-               <Value name="TO">
-                  <Shadow type="math_number">
-                     <Field name="NUM">100</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-          </Category>
-          <Category name="Logic" colour="#5b80a5">
-            <Block type="controls_if" />
-            <Block type="logic_compare">
-               <Field name="OP">EQ</Field>
-            </Block>
-            <Block type="logic_operation">
-               <Field name="OP">AND</Field>
-            </Block>
-            <Block type="logic_negate" />
-            <Block type="logic_boolean">
-               <Field name="BOOL">TRUE</Field>
-            </Block>
-            <Block type="logic_null" />
-            <Block type="logic_ternary" />
-          </Category>
-          <sep />
-          <Category name="Loops" colour="#5ba55b">
-            <Block type="controls_repeat_ext">
-               <Value name="TIMES">
-                  <Shadow type="math_number">
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="controls_whileUntil">
-               <Field name="MODE">{'WHILE'}</Field>
-            </Block>
-            <Block type="controls_for">
-               <Field name="VAR" id="bIywjwW}EGY^,`/o4Yg_">i</Field>
-               <Value name="BY">
-                  <Shadow type="math_number">
-                     <Field name="NUM">1</Field>
-                  </Shadow>
-               </Value>
-            </Block>
-            <Block type="controls_forEach">
-               <Field name="VAR" id="h|UvWVkv?BIRA|Nz+9k8">item</Field>
-            </Block>
-          </Category>
-          <Category name="Functions" colour="#995ba5" custom="PROCEDURE" />
-        </BlocklyComponent>
+        />
       </ToolContainer>
     }
   </div>;

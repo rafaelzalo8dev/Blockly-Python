@@ -7,6 +7,12 @@ export const Instrucciones = styled.div`
   padding: 30px 20px;
 `;
 
+export const TitleContainer = styled.div`
+  width: 100%;
+  display: inline-flex;
+  padding: 10px 20px;
+`;
+
 export const ToolContainer = styled.div``;
 
 export const CodeContainer = styled.textarea`
@@ -20,7 +26,7 @@ export const ExerciseInstruction = styled.div`
 `;
 export const ExerciseTitle = styled.div`
   width:  100%;
-  padding-left: 40px;
+  padding-left: 10px 30px;
   font-size: 20px;
   font-weight: bold;
 `;
@@ -35,6 +41,5 @@ export const Topic = styled.div`
 
 export const ButtonContainer = styled.div`
   width: 100%;
-  display: flex;
-  justify-content: space-around;
+  text-align: center;
 `;
