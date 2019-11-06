@@ -36,6 +36,7 @@ export const MidWidth = styled.div`
 `;
 export const Topic = styled.div`
   font-size: 50px;
+  padding: 10px 40px;
   font-weight: bold;
 `;
 

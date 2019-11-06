@@ -24,8 +24,6 @@ export const SectionContainer = styled.div`
   display: flex;
   padding: 10px 30px;
   justify-content: space-around;
-  position: fixed;
-  bottom: 0;
 `;
 
 export const MidWidth = styled.div`

@@ -26,6 +26,9 @@ const useStyles = makeStyles(theme => ({
   resetContainer: {
     padding: theme.spacing(3),
   },
+  lbl: {
+    fontSize: '16px',
+  }
 }));
 
 function getSteps() {
@@ -62,9 +65,8 @@ function StepperInstructions(props) {
         <Stepper activeStep={activeStep} orientation="vertical">
           {props.data.instructions.map( (label, index) => (
               <Step key={label.text}>
-                <StepLabel>{label.text}</StepLabel>
+                <StepLabel className={classes.lbl}>{label.text}</StepLabel>
                 <StepContent>
-                  <Typography>{label.description}</Typography>
                   <div className={classes.actionsContainer}>
                     <div>
                       <Button

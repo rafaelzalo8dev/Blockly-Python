@@ -34,7 +34,7 @@ const Toolbar = props => {
   return (
     <StyledContent>
       <MainContainer dev={props.dev} >
-        <div className="logo" onClick={() => goHome()}>
+              <div className="logo" onClick={() => goHome()}>
           <img
             className={classes.image}
             src="https://storage.googleapis.com/datank-exam/iconoBlocklyPython.png"
@@ -47,7 +47,7 @@ const Toolbar = props => {
               <Name>
                 {user ? user.name : ''}
               </Name>
-              <Button variant="contained" color="primary" onClick={logOut} text={'Log out'}/>
+              <Button variant="contained" color="primary" onClick={logOut} icon={'Logout'} text={'Log out'}/>
             </ React.Fragment>
           }
         </div>

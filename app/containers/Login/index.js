@@ -19,6 +19,7 @@ import {
   apiSuccesAction,
   apiErrorAction,
   loading,
+  closeSnackbar,
 } from 'containers/App/actions';
 import Footer from 'components/Footer';
 
@@ -47,6 +48,9 @@ export function Login({ dispatch }) {
       })
       .catch(err => {
         dispatch(apiErrorAction('Wrong Credentials'));
+        setTimeout(function () {
+          dispatch(closeSnackbar());
+        }, 3000);
       });
     }
     return;

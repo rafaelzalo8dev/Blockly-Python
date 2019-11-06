@@ -21,10 +21,10 @@ const key = 'home';
 import config from 'config';
 export function HomePage(props) {
   useEffect(() => {
-    const userStorage = JSON.parse(localStorage.getItem('user'));
-    if(userStorage) {
-      props.history.push('/progreso');
-    }
+    // const userStorage = JSON.parse(localStorage.getItem('user'));
+    // if(userStorage) {
+    //   props.history.push('/progreso');
+    // }
   }, []);
 
   return (

@@ -17,6 +17,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from 'components/BlocklyButton';
 import { FormContainer, Container } from 'containers/Login/styles';
 import Toolbar from 'components/Toolbar';
+import Footer from 'components/Footer';
 import {post} from 'utils/request';
 import {
   apiSuccesAction,
@@ -60,49 +61,50 @@ export function Formulario({ dispatch }) {
     });
   };
   return <React.Fragment>
-  <Toolbar />
-    <Container>
+      <Toolbar />
+      <Container>
 
-      <h1>Register and start learning!</h1>
-      <FormContainer>
-        <TextField
-          label="Fullname"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          margin="normal"
+        <h1>Register and start learning!</h1>
+        <FormContainer>
+          <TextField
+            label="Fullname"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            label="Age"
+            value={age}
+            onChange={e => setAge(e.target.value)}
+            margin="normal"
+            type="number"
+          />
+          <TextField
+            label="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            margin="normal"
+            type="email"
+          />
+          <TextField
+            label="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            margin="normal"
+            type="password"
+          />
+        </FormContainer>
+        <Button
+          icon={'PersonAdd'}
+          disabled={!password || !email || !age || !name}
+          onClick={() => createUser()} text={"Start Learning!"}
         />
-        <TextField
-          label="Age"
-          value={age}
-          onChange={e => setAge(e.target.value)}
-          margin="normal"
-          type="number"
+        <Button
+          icon={'AccountCircle'}
+          onClick={() => history.push('/login')} text={"Already have an account"}
         />
-        <TextField
-          label="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          margin="normal"
-          type="email"
-        />
-        <TextField
-          label="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          margin="normal"
-          type="password"
-        />
-      </FormContainer>
-      <Button
-        icon={'PersonAdd'}
-        disabled={!password || !email || !age || !name}
-        onClick={() => createUser()} text={"Start Learning!"}
-      />
-      <Button
-        icon={'AccountCircle'}
-        onClick={() => history.push('/login')} text={"Already have an account"}
-      />
-    </Container>
+      </Container>
+      <Footer />
     </React.Fragment>;
 }
 

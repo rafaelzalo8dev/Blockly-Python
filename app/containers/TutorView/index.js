@@ -1,9 +1,3 @@
-/**
- *
- * TutorView
- *
- */
-
 import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -17,6 +11,7 @@ import Blockly from 'blockly';
 import BlocklyPython from 'blockly/python';
 import ContentDefault from 'utils/content';
 import Button from 'components/BlocklyButton';
+import FuzzyLogic from 'fuzzy';
 import {
   Instrucciones,
   ToolContainer,
@@ -29,10 +24,18 @@ import {
   TitleContainer,
 } from './styledComponents';
 import ResultDialog from 'components/ResultDialog';
+import SkulptConsole from 'components/SkulptConsole';
 import BlocklyComponent from 'components/Blockly';
 import Toolbar from 'components/Toolbar';
 import StepperInstructions from 'components/StepperInstructions';
-export function TutorView(props) {
+import {
+  apiSuccesAction,
+  apiErrorAction,
+  loading,
+  closeSnackbar,
+} from 'containers/App/actions';
+import { post, get } from 'utils/request';
+export function TutorView({dispatch, location}) {
   useInjectReducer({ key: 'tutorView', reducer });
   const [toolboxCategories, setToolboxCategories] = useState([]);
   const [simpleWorkspace, setWorkspace] = useState(null);
@@ -45,28 +48,48 @@ export function TutorView(props) {
   const [timeExpend, setTimeExpend] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState(null);
-  const [calification, setCalification] = useState(0);
+  const [calification, setCalification] = useState(9);
   const [dialogTitle, setDialogTitle] = useState('');
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [rightActionText, setRightAction] = useState('');
+  const [leftActionText, setLeftAction] = useState('');
+  const [isOkResult, setIsOkResult] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hintsToShow, setHintsToShow] = useState([]);
+  const [openRunner, setOpenRunner] = useState(false);
 
   useEffect(() => {
-    console.log('props.location en tutor', props.location);
-    const exerciseProp = props.location ? props.location.exercise : null;
-    if(!exerciseProp) {
+    const exerciseProp = location ? location.exercise : null;
+    if(exerciseProp) {
+      dispatch(loading());
+      get({
+        url: `/exercises/getById?id=${exerciseProp}`
+      })
+      .then(result => {
+        setShowInstructions(true);
+        setIsLoading(false);
+        dispatch(apiSuccesAction());
+        setExercise(result);
+      })
+      .catch(err => {
+        dispatch(apiErrorAction(err));
+        setTimeout(function() {
+          dispatch(closeSnackbar());
+        }, 3000);
+      });
+    } else {
       history.push('/progreso');
     }
-    setExercise(exerciseProp);
   }, []);
 
   useEffect(() => {
     if(simpleWorkspace && simpleWorkspace.workspace){
-      console.log('entra al if');
       simpleWorkspace.workspace.addChangeListener(generateCode);
     }
   }, [simpleWorkspace]);
-  //
+
   setTimeout(function () {
-    if(showToolContainer) {
+    if(showToolContainer && !openDialog && !openRunner) {
       if(timeExpend >= exercise.estimatedTime - 1) {
         setShowToolContainer(false);
         setDialogMessage(
@@ -84,9 +107,27 @@ export function TutorView(props) {
       }
     }
   }, 1000);
+
+  const runCode = () => {
+    if(exercise.hints && exercise.hints.length > hintTimes) {
+      setDialogMessage(
+        <div>
+          <div>You have {exercise.hints ? exercise.hints.length - hintTimes : 0 } more hint(s) remaining or you should try with another excercise going to the menú</div>
+        </div>
+      );
+    } else {
+      setDialogMessage(
+        <div>
+          <div>You have not reached the point of this exercise.</div>
+          <div>You should try with another excercise going to the menú.</div>
+        </div>
+      );
+    }
+    setOpenRunner(true);
+  };
+
   const generateCode = () => {
     const code1 = BlocklyPython.workspaceToCode(simpleWorkspace.workspace);
-    console.log('code1 ', code1);
     const array = code1.split("\n");
     setCode(code1);
     const cleanArray = [];
@@ -96,9 +137,60 @@ export function TutorView(props) {
     setCodeArray(cleanArray);
   };
 
+  const evaluate = (data) => {
+    const fuzzyObj = {
+  		crisp_input: [data[0], data[1], data[2]],
+  		variables_input: [{
+				name: "Complexity",
+				setsName: ["Easy", "Medium", "Hard"],
+				sets: [
+					[0,0,1,2],
+					[1,2,3,4],
+					[3,5,5,6]
+				]
+			},
+  			{
+  				name: "Time expend",
+  				setsName: ["Early", "Normal", "Late"],
+  				sets: [
+  					[0,0,80,120],
+  					[80,120,220,240],
+  					[220,300,600,600]
+  				]
+  			},
+  			{
+  				name: "Hints used",
+  				setsName: ["None", "Some", "All"],
+  				sets: [
+  					[0,0,1,2],
+  					[1,1,2,3],
+  					[2,3,5,5]
+  				]
+  			}
+  		],
+  		variable_output: {
+  			name: "Calification",
+  			setsName: ["Low", "Normal", "Nice"],
+  			sets: [
+  				[0,0,3,4],
+  				[2,4,7,9],
+  				[7,8,10,10]
+  			]
+  		},
+  		inferences: [
+  			[1,2,2],
+  			[2,1,0],
+  			[2,1,0]
+  		]
+  	}
+    console.log('FuzzyLogic.getResult(fuzzyObj) ', FuzzyLogic.getResult(fuzzyObj));
+    return FuzzyLogic.getResult(fuzzyObj);
+  };
+
   const testCode = () => {
     let isOK = false;
-      if(exercise.solutions && exercise.solutions.length > 0) {
+    let sameLineCounter = 0;
+    if(exercise.solutions && exercise.solutions.length > 1) {
         exercise.solutions.forEach(solution => {
           if(solution.length == codeArray.length) {
             let sameLineCounter = 0;
@@ -107,25 +199,47 @@ export function TutorView(props) {
                 sameLineCounter+= 1;
               }
             }
-            if(sameLineCounter === solution.length) {
-              isOK = true;
-            }
           }
       })
-
+      isOK  = true;
     } else {
-      isOK = false;
+      if(exercise.solutions.length == 1) {
+        sameLineCounter = 1;
+        isOK = true;
+      }
     }
+    setCalification(parseInt(evaluate([parseInt(exercise.complexity), parseInt(timeExpend), parseInt(hintTimes)])) + 3);
+    console.log('calification ', calification);
+    setLeftAction('Close');
+    setRightAction('Go to Menú');
+    if(sameLineCounter === exercise.solutions.length) {
+      if(calification > 4) {
+        console.log('enelif');
+        setDialogMessage(
+          <div>
+            <div>Your time was: {timeExpend}</div>
+            <div>Your calification is: {calification}</div>
+          </div>
+        );
+        setIsOkResult(true);
+        setLeftAction('Go to Menú');
+        setRightAction('Next Exercise');
+        setDialogTitle('There is something wrong!');
+      } else {
+        console.log('enelelse');
+        setDialogMessage(
+          <div>
+            <div>Your time was: {timeExpend}</div>
+            <div>Your calification is: {calification}</div>
+          </div>
+        );
+        setDialogTitle('Well done!');
+      }
+      isOK = true;
+    }
+    setOpenDialog(true);
 
-    if(isOK){
-      setDialogMessage(
-        <div>
-          <div>Your time was: {timeExpend}</div>
-          <div>Your calification is: {calification}</div>
-        </div>
-      );
-      setDialogTitle('Well done!');
-    } else {
+    if(!isOK){
       if(exercise.hints && exercise.hints.length > hintTimes) {
         setDialogMessage(
           <div>
@@ -140,23 +254,68 @@ export function TutorView(props) {
           </div>
         );
       }
-
       setDialogTitle('Something is wrong!');
+      setOpenDialog(true);
     }
-    setOpenDialog(true);
+  };
+
+  const nextExercise = () => {
+    dispatch(loading());
+    post({
+      url: '/exercisesResult',
+      body: {
+        userId: JSON.parse(localStorage.getItem('user')).id,
+        exerciseId: exercise.id,
+        calification
+      }
+    })
+    .then(resultCreated => {
+      get({
+        url: `/exercises/getNextExercise?topicId=${exercise.topicId}&complexity=${calification > 7 ? exercise.complexity + 1 : exercise.complexity - 1}`
+      })
+      .then(result => {
+          dispatch(apiSuccesAction());
+          setOpenDialog(false);
+          history.push({
+            pathname: '/nextExercise',
+            exercise: result,
+          });
+      })
+      .catch(err => {
+        apiErrorAction(
+            'There are no more exercises of this topic. You should try with another topic in the Menú.'
+        );
+        setOpenDialog(true);
+        // goToProgress();
+      });
+    })
+    .catch(err => {
+      apiErrorAction(
+          'Error trying to save your progress.'
+      );
+      setOpenDialog(true);
+    });
+
   };
 
   const showHints = () => {
-    setShowExerciseHints(true);
     if(hintTimes == exercise.hints.length) {
       setDialogMessage(
         <div>
           <div>You should try with another excercise goint to the menú, or ask for help</div>
         </div>
       );
+      setLeftAction('Close');
+      setRightAction('Go to Menú');
       setDialogTitle("There are no more hints remaining for this exercise!");
       setOpenDialog(true);
     } else {
+      setShowExerciseHints(true);
+      const hints = [];
+      for(let i = 0; i < hintTimes + 1; i++){
+        hints.push(exercise.hints[i]);
+      }
+      setHintsToShow(hints);
       setHintTimes(hintTimes + 1);
     }
   };
@@ -178,35 +337,24 @@ export function TutorView(props) {
 
   return <div>
     <Toolbar />
-    <Topic>{exercise.topic}</Topic>
+    <Topic>{exercise && exercise.topic ? exercise.topic.name : ''}</Topic>
     <Instrucciones>
       <MidWidth>
-        <ExerciseTitle>{exercise.name}</ExerciseTitle>
+        <ExerciseTitle>{exercise.title}</ExerciseTitle>
         <ExerciseInstruction>
           <ExerciseTitle>Instructions</ExerciseTitle>
-          {
-            exercise.instructions &&
-              exercise.instructions.map((el, idx) => (
-                <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el.text} </ExerciseInstruction>
-              ))
-          }
-          <Button variant="contained" color="primary" onClick={() => setShowInstructions(true)} text={'Show details'}/>
+          <Button variant="contained" color="primary" onClick={() => setShowInstructions(true)} icon ={'Info'} text={'Show Instructions'}/>
+          <ExerciseTitle>Hints</ExerciseTitle>
+          <Button variant="contained" color="primary" icon={'Hints'} onClick={showHints} text={'Show Hint'}/>
         </ExerciseInstruction>
         <ExerciseInstruction>
           {
             showExerciseHints && exercise.hints &&
-            <React.Fragment>
-              <ExerciseTitle>Hints</ExerciseTitle>
-              {
-                exercise.hints.map((el, idx) => {
-                    if(hintTimes > idx) {
-                      return (
-                        <ExerciseInstruction onClick={el.onclick}>{idx + 1}-. {el.text} </ExerciseInstruction>
-                      );
-                    }
-                })
-              }
-            </React.Fragment>
+            <StepperInstructions
+              open={showExerciseHints}
+              handleClose={() => setShowExerciseHints(false)}
+              data={{instructions: hintsToShow || []}}
+            />
           }
         </ExerciseInstruction>
       </MidWidth>
@@ -217,30 +365,28 @@ export function TutorView(props) {
         </ExerciseInstruction>
         {!showToolContainer &&
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowToolContainer(true)} text={'Start!'} />
+            <Button variant="contained" color="primary" icon={'Start'} onClick={() => setShowToolContainer(true)} text={'Start'} />
           </ButtonContainer>
         }
         {showToolContainer &&
           <React.Fragment>
             <ButtonContainer>
-              <Button variant="contained" color="primary" onClick={() => setShowToolContainer(false)} text={'Pause!'}/>
-              <Button variant="contained" color="primary" onClick={generateCode} text={'Convert'}/>
-              <Button variant="contained" color="primary" onClick={showHints} text={'Show Hint'}/>
-              <Button variant="contained" color="primary" onClick={testCode} text={'Test Code'}/>
+              <Button variant="contained" color="primary" icon={'Pause'} onClick={() => setShowToolContainer(false)} text={'Pause'}/>
+              <Button variant="contained" color="primary" icon={'Test'} onClick={runCode} text={'Run Code'}/>
             </ButtonContainer>
           </React.Fragment>
         }
 
       </MidWidth>
     </Instrucciones>
-    {showInstructions &&
+    {exercise && showInstructions &&
       <StepperInstructions
         open={showInstructions}
         handleClose={() => setShowInstructions(false)}
         data={{instructions: exercise.instructions || []}}
       />
     }
-    { showToolContainer &&
+    { exercise && showToolContainer &&
       <TitleContainer>
         <MidWidth>
           <ExerciseTitle>Blockly</ExerciseTitle>
@@ -250,16 +396,34 @@ export function TutorView(props) {
         </MidWidth>
       </TitleContainer>
     }
-    {openDialog &&
+    {exercise && openDialog &&
       <ResultDialog
         open={openDialog}
-        goToProgress={goToProgress}
-        handleClose={() => setOpenDialog(false)}
+        goToProgress={() => {
+          if(isOkResult) {
+            dispatch(loading());
+            nextExercise();
+          } else {
+            goToProgress();
+          }
+        }}
+        rightActionText={rightActionText || 'rafa'}
+        leftActionText={leftActionText || 'rafa'}
+        handleClose={() => {
+          setOpenDialog(false);
+        }}
+        leftAction={() => {
+          if(!isOkResult){
+            setOpenDialog(false);
+          } else {
+            goToProgress();
+          }
+        }}
         message={dialogMessage}
         title={dialogTitle}
       />
     }
-    {showToolContainer &&
+    {exercise && showToolContainer &&
       <ToolContainer>
         <BlocklyComponent
           code={code}
@@ -270,12 +434,35 @@ export function TutorView(props) {
             drag: true,
             wheel: true
           }}
+          onChange={() => console.log('change0')}
           initialXml={`
             <xml xmlns="http://www.w3.org/1999/xhtml">
             </xml>
           `}
         />
       </ToolContainer>
+    }
+    {exercise && openRunner &&
+      <SkulptConsole
+        open={openRunner}
+        goToProgress={() => {
+          console.log('isOkResult ', isOK);
+          if(isOkResult) {
+            nextExercise();
+          } else {
+            goToProgress();
+          }
+        }}
+        leftActionText={leftActionText}
+        handleClose={() => {
+          setOpenDialog(false);
+          setOpenRunner(false);
+        }}
+        message={'-'}
+        code={code}
+        testCode={testCode}
+        title={'Python console'}
+      />
     }
   </div>;
 }

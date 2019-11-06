@@ -1,4 +1,4 @@
 const config = {
-  API_URL: "http://localhost:3001/api"
+  API_URL: "https://blockly-api-dot-autogenaaccesorios.appspot.com/api"
 };
 export default config;

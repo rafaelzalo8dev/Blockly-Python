@@ -9,7 +9,7 @@ Blockly.setLocale(locale);
 
 class BlocklyComponent extends React.Component {
     componentDidMount() {
-        const { initialXml, children, ...rest } = this.props;
+        const { initialXml, children, code, ...rest } = this.props;
         console.log('this.props ', this.props);
         this.primaryWorkspace = Blockly.inject(
             this.blocklyDiv,
@@ -34,12 +34,10 @@ class BlocklyComponent extends React.Component {
 
     render() {
         const { children, code } = this.props;
-        console.log('code en el blocklycomponent', code);
-        console.log('children del component ', children);
         return (<React.Fragment>
           <div id="container-flex">
             <div ref={e => this.blocklyDiv = e} id="blocklyDiv" />
-            <textarea id="codeContainer" ref={e => this.codeContainer = e} value={code}/>
+            <textarea id="codeContainer" readOnly ref={e => this.codeContainer = e} value={code}/>
             <xml xmlns="https://developers.google.com/blockly/xml" is="blockly" style={{ display: 'none' }} ref={(toolbox) => { this.toolbox = toolbox; }}>
               <Category name="Variables" colour="#a55b80" custom="VARIABLE" />
               <Category name="Text" colour="#5ba58c">

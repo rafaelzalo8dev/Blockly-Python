@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
  },
  expand: {
    transform: 'rotate(270deg)',
-   backgroundColor: 'green',
+   background: '#4285f4',
    position: 'absolute',
    right: '4px',
    marginLeft: 'auto',
@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
    transform: 'rotate(90deg)',
    position: 'absolute',
    left: '4px',
-   backgroundColor: 'green',
+   background: '#4285f4',
    marginLeft: 'auto',
    transition: theme.transitions.create('transform', {
      duration: theme.transitions.duration.shortest,
@@ -95,14 +95,9 @@ export function Progreso({ dispatch }) {
     }
     };
     get({
-      url: 'http://localhost:3001/api/topics?filter=%7B%20%20%20%22include%22%3A%20%7B%20%20%20%20%20%22relation%22%3A%20%22exercises%22%2C%20%20%20%20%20%22scope%22%3A%20%7B%20%20%20%20%20%20%20%22include%22%3A%20%5B%20%20%20%20%20%20%20%7B%22relation%22%3A%22hints%22%7D%2C%20%20%20%20%20%20%20%7B%22relation%22%3A%22solutions%22%7D%2C%20%20%20%20%20%20%20%7B%22relation%22%3A%22instructions%22%2C%20%20%20%20%20%20%20%20%20%22scope%22%3A%20%7B%20%20%20%20%20%20%20%20%20%20%20%22order%22%3A%22index%22%20%20%20%20%20%20%20%20%20%7D%20%20%20%20%20%20%20%7D%20%20%20%20%20%5D%20%20%20%20%20%20%20%7D%20%20%20%7D%20%7D'
+      url: `/topics/getTopicsInfo?userId=${JSON.parse(localStorage.getItem('user')).id}`
     })
     .then(result => {
-        // if(result && result.id) {
-        //   dispatch(apiSuccesAction());
-        //   localStorage.setItem('user', JSON.stringify(result));
-        //   history.push('/progreso');
-        // }
         dispatch(apiSuccesAction());
         setTopics(result);
     })
@@ -112,11 +107,11 @@ export function Progreso({ dispatch }) {
   }, []);
 
   const start = (rowSelected, idx) => {
-    console.log('rowSelected ', rowSelected);
     history.push({
       pathname: '/tutor',
-      exercise: rowSelected,
+      exercise: rowSelected.id,
       index: idx,
+      nextExercise: selectedTopic.exercises.length - 1 !== idx ? selectedTopic.exercises[idx + 1].id : null,
       isLastExercise: selectedTopic.exercises.length - 1 == idx,
     });
   };
@@ -196,9 +191,9 @@ export function Progreso({ dispatch }) {
                   <TableCell>{row.description}</TableCell>
                   <TableCell align="center">{row.complexity}</TableCell>
                   <TableCell align="center">{row.estimatedTime} seconds</TableCell>
-                  <TableCell align="center">{row.exerciseResults ? row.exerciseResults[0].calification : 0} stars</TableCell>
+                  <TableCell align="center">{row.exerciseResults && row.exerciseResults.length > 0 && row.exerciseResults[0] ? row.exerciseResults[0].calification : '0'} stars</TableCell>
                   <TableCell align="center">
-                    <Button variant="contained" color="primary" onClick={() => start(row, index)} text={'Try Now!'}/>
+                    <Button variant="contained" color="primary" icon={'Start'} onClick={() => start(row, index)} text={'Try Now!'}/>
                   </TableCell>
                 </TableRow>
               ))}

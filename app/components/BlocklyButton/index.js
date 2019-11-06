@@ -8,6 +8,12 @@ import ArrowBack from '@material-ui/icons/ArrowBack';
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
 import Info from '@material-ui/icons/Info';
 import GithubIcon from '@material-ui/icons/GitHub';
+import Pause from '@material-ui/icons/PauseCircleOutline';
+import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
+import AssistantIcon from '@material-ui/icons/Assistant';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import PlayCircleFilledWhiteIcon from '@material-ui/icons/PlayCircleFilledWhite';
+
 const useStyles = makeStyles(theme => ({
   button: {
     fontFamily: 'Open Sans',
@@ -46,6 +52,21 @@ export function BlocklyButton(props) {
     }
     if(props.icon === 'GitHub') {
       return <GithubIcon className={classes.icon} />
+    }
+    if(props.icon === 'Pause'){
+      return <Pause className={classes.icon} />
+    }
+    if(props.icon === 'Test'){
+      return <AssignmentTurnedInIcon className={classes.icon} />
+    }
+    if(props.icon === 'Hints'){
+      return <AssistantIcon className={classes.icon} />
+    }
+    if(props.icon === 'Logout'){
+      return <ExitToAppIcon className={classes.icon} />
+    }
+    if(props.icon === 'Start'){
+      return <PlayCircleFilledWhiteIcon className={classes.icon} />
     }
   };
   return (

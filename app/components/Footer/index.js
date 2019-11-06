@@ -17,7 +17,7 @@ function Footer() {
         <Title>MCC - FIA</Title>
         <Title>DR. RAMON ZATARAÍN</Title>
         <Title>RAFAEL ZAVALA LÓPEZ</Title>
-        <Button href={'http://www.github.com'} target="_blank" icon={'GitHub'} text={'Ver código'} />
+        <Button href={'https://github.com/rafaelzalo8dev/Blockly-Python'} target="_blank" icon={'GitHub'} text={'Ver código'} />
       </QuarterWidth>
       <QuarterWidth>
         <img

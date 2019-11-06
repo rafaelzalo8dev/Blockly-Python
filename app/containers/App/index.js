@@ -20,6 +20,7 @@ import Toolbar from 'components/Toolbar';
 import Register from 'containers/Register/Loadable';
 import Login from 'containers/Login/Loadable';
 import TutorView from 'containers/TutorView/Loadable';
+import NextExercise from 'containers/NextExercise/Loadable';
 import Progreso from 'containers/Progreso/Loadable';
 import {
   makeSelectError,
@@ -43,14 +44,11 @@ function App({
   message,
   dispatch,
 }) {
-  console.log('-------------------------------------------');
-  console.log('error ', error);
-  console.log('message ', message);
-  console.log('showSnackbar ', showSnackbar);
   const closeSnackbar = () => {
-    console.log('en el close snackbar');
     dispatch(closeSnackbar());
   };
+
+  console.log('showSnackbar  ', showSnackbar);
 
   return (
     <AppWrapper>
@@ -66,9 +64,10 @@ function App({
         <Route exact path="/register" component={Register} />
         <Route exact path="/progreso" component={Progreso} />
         <Route exact path="/tutor" component={TutorView} />
+        <Route exact path="/nextExercise" component={NextExercise} />
       </Switch>
       {showSnackbar && (
-        <SnackBar text={message} open={showSnackbar} onClose={() => closeSnackbar()}isOK={!error} />
+        <SnackBar text={message} open={showSnackbar} onClose={() => closeSnackbar()} isOK={!error}/>
       )}
       {loading && <Loader />}
       <GlobalStyle />
