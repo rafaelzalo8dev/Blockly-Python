@@ -4,6 +4,7 @@ import './BlocklyComponent.css';
 import Blockly from 'blockly/core';
 import locale from 'blockly/msg/en';
 import 'blockly/blocks';
+import { Textarea } from 'components/Footer/styledComponents';
 import { Block, Value, Field, Shadow, Category, Separator } from 'components/Blockly';
 Blockly.setLocale(locale);
 
@@ -37,7 +38,7 @@ class BlocklyComponent extends React.Component {
         return (<React.Fragment>
           <div id="container-flex">
             <div ref={e => this.blocklyDiv = e} id="blocklyDiv" />
-            <textarea id="codeContainer" readOnly ref={e => this.codeContainer = e} value={code}/>
+            <Textarea id="codeContainer" readOnly ref={e => this.codeContainer = e} value={code}/>
             <xml xmlns="https://developers.google.com/blockly/xml" is="blockly" style={{ display: 'none' }} ref={(toolbox) => { this.toolbox = toolbox; }}>
               <Category name="Variables" colour="#a55b80" custom="VARIABLE" />
               <Category name="Text" colour="#5ba58c">
@@ -126,7 +127,7 @@ class BlocklyComponent extends React.Component {
                    </Value>
                 </Block>
               </Category>
-              <sep />
+              <Separator />
               <Category name="Math" colour="#5b67a5">
                 <Block type="math_round">
                    <Field name="OP">ROUND</Field>
@@ -187,7 +188,7 @@ class BlocklyComponent extends React.Component {
                 <Block type="logic_null" />
                 <Block type="logic_ternary" />
               </Category>
-              <sep />
+              <Separator />
               <Category name="Loops" colour="#5ba55b">
                 <Block type="controls_repeat_ext">
                    <Value name="TIMES">

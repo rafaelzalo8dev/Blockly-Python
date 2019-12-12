@@ -32,3 +32,21 @@ export const get = (data) => {
     });
   });
 };
+
+export const sendImg = (img) => {
+  const imperialCall = axios.create({
+    baseURL: 'http://thelastimperial.com:8080'
+  });
+  return new Promise((resolve, reject) => {
+    imperialCall
+    .post('/imgData',{
+      data: img, height: 400, width: 400
+    })
+    .then(response => {
+      resolve(response);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};

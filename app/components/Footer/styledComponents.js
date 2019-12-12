@@ -40,3 +40,5 @@ export const QuarterWidth = styled.div`
     max-width: 300px !important;
   }
 `;
+
+export const Textarea = styled.textarea``;

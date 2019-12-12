@@ -42,7 +42,8 @@ export function HomePage(props) {
           <Title>Learn to program in Python with blocks</Title>
           <img
             styles={{maxWidth: '500px', width: '100%', marginBottom: '500px !important'}}
-            src="https://storage.googleapis.com/datank-exam/inicio.png"
+            src="https://storage.googleapis.com/blockly-api/inicio.png"
+            alter="imagen1"
           />
           <Button icon={'AccountCircle'} onClick={() => history.push('/login')} text={'Sign in'}></Button>
           <Button icon={'PersonAdd'} onClick={() => history.push('/register')} text={'Sign up'}></Button>
@@ -62,7 +63,7 @@ export function HomePage(props) {
           <MidWidth>
             <img
               styles={{maxWidth: '500px', width: '100%'}}
-              src="https://storage.googleapis.com/datank-exam/blocklyeditor.png"
+              src="https://storage.googleapis.com/blockly-api/blockklyeditor.png"
             />
           </MidWidth>
         </SectionContainer>
@@ -70,7 +71,7 @@ export function HomePage(props) {
           <MidWidth>
             <img
               styles={{maxWidth: '500px', width: '100%'}}
-              src="https://storage.googleapis.com/datank-exam/ejercicios.png"
+              src="https://storage.googleapis.com/blockly-api/ejercicios.png"
             />
           </MidWidth>
           <MidWidth>
@@ -97,7 +98,7 @@ export function HomePage(props) {
           <MidWidth>
             <img
               styles={{maxWidth: '500px', width: '100%'}}
-              src="https://storage.googleapis.com/datank-exam/FUZZY.png"
+              src="https://storage.googleapis.com/blockly-api/FUZZY.png"
             />
           </MidWidth>
         </SectionContainer>

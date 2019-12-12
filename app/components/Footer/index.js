@@ -10,7 +10,7 @@ function Footer() {
       <QuarterWidth>
         <img
           styles={{maxWidth: '300px !important', width: '100%'}}
-          src="https://storage.googleapis.com/datank-exam/iconoBlocklyPython.png"
+          src="https://storage.googleapis.com/blockly-api/Group%201%20(1).png"
         />
       </QuarterWidth>
       <QuarterWidth>
@@ -22,7 +22,7 @@ function Footer() {
       <QuarterWidth>
         <img
           styles={{maxWidth: '300px', width: '100%'}}
-          src="https://storage.googleapis.com/datank-exam/logotec.png"
+          src="https://storage.googleapis.com/blockly-api/logotec.png"
           alter="logotect"
         />
       </QuarterWidth>

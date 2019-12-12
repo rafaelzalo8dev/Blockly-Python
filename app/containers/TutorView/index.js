@@ -7,6 +7,7 @@ import history from 'utils/history';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectTutorView from './selectors';
 import reducer from './reducer';
+import Webcam from "react-webcam";
 import Blockly from 'blockly';
 import BlocklyPython from 'blockly/python';
 import ContentDefault from 'utils/content';
@@ -28,13 +29,14 @@ import SkulptConsole from 'components/SkulptConsole';
 import BlocklyComponent from 'components/Blockly';
 import Toolbar from 'components/Toolbar';
 import StepperInstructions from 'components/StepperInstructions';
+import DataDialog from 'components/DataDialog';
 import {
   apiSuccesAction,
   apiErrorAction,
   loading,
   closeSnackbar,
 } from 'containers/App/actions';
-import { post, get } from 'utils/request';
+import { post, get, sendImg } from 'utils/request';
 export function TutorView({dispatch, location}) {
   useInjectReducer({ key: 'tutorView', reducer });
   const [toolboxCategories, setToolboxCategories] = useState([]);
@@ -50,13 +52,14 @@ export function TutorView({dispatch, location}) {
   const [dialogMessage, setDialogMessage] = useState(null);
   const [calification, setCalification] = useState(9);
   const [dialogTitle, setDialogTitle] = useState('');
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showData, setShowData] = useState(false);
   const [rightActionText, setRightAction] = useState('');
   const [leftActionText, setLeftAction] = useState('');
   const [isOkResult, setIsOkResult] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hintsToShow, setHintsToShow] = useState([]);
   const [openRunner, setOpenRunner] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(null);
 
   useEffect(() => {
     const exerciseProp = location ? location.exercise : null;
@@ -66,7 +69,7 @@ export function TutorView({dispatch, location}) {
         url: `/exercises/getById?id=${exerciseProp}`
       })
       .then(result => {
-        setShowInstructions(true);
+        setShowData(true);
         setIsLoading(false);
         dispatch(apiSuccesAction());
         setExercise(result);
@@ -80,6 +83,7 @@ export function TutorView({dispatch, location}) {
     } else {
       history.push('/progreso');
     }
+
   }, []);
 
   useEffect(() => {
@@ -103,6 +107,10 @@ export function TutorView({dispatch, location}) {
         setTimeExpend(exercise.estimatedTime);
       } else {
         const newTime = timeExpend + 1;
+        if(newTime % 15 == 0) {
+          capture();
+          console.log('es multiplo de 5 ', newTime);
+        }
         setTimeExpend(newTime);
       }
     }
@@ -183,7 +191,6 @@ export function TutorView({dispatch, location}) {
   			[2,1,0]
   		]
   	}
-    console.log('FuzzyLogic.getResult(fuzzyObj) ', FuzzyLogic.getResult(fuzzyObj));
     return FuzzyLogic.getResult(fuzzyObj);
   };
 
@@ -209,12 +216,21 @@ export function TutorView({dispatch, location}) {
       }
     }
     setCalification(parseInt(evaluate([parseInt(exercise.complexity), parseInt(timeExpend), parseInt(hintTimes)])) + 3);
-    console.log('calification ', calification);
     setLeftAction('Close');
     setRightAction('Go to Menú');
     if(sameLineCounter === exercise.solutions.length) {
-      if(calification > 4) {
-        console.log('enelif');
+      if(calification < 4) {
+        setDialogMessage(
+          <div>
+            <div>Your time was: {timeExpend}</div>
+            <div>Your calification is: {calification}</div>
+          </div>
+        );
+
+        setLeftAction('Close');
+        setRightAction('Go to Menú');
+        setDialogTitle('There is something wrong!');
+      } else {
         setDialogMessage(
           <div>
             <div>Your time was: {timeExpend}</div>
@@ -222,18 +238,8 @@ export function TutorView({dispatch, location}) {
           </div>
         );
         setIsOkResult(true);
-        setLeftAction('Go to Menú');
-        setRightAction('Next Exercise');
-        setDialogTitle('There is something wrong!');
-      } else {
-        console.log('enelelse');
-        setDialogMessage(
-          <div>
-            <div>Your time was: {timeExpend}</div>
-            <div>Your calification is: {calification}</div>
-          </div>
-        );
         setDialogTitle('Well done!');
+        setRightAction('Next Exercise');
       }
       isOK = true;
     }
@@ -335,54 +341,122 @@ export function TutorView({dispatch, location}) {
     });
   };
 
+  const videoConstraints = {
+    width: 400,
+    height: 400,
+    facingMode: "user"
+  };
+
+  const webcamRef = React.useRef(null);
+  const [negativo, setNegativo] = useState(false);
+
+  const capture = function() {
+    if(webcamRef && webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      console.log('imageSrc ', imageSrc);
+      const positivo = false;
+      if(positivo) {
+
+      } else {
+        setNegativo(true);
+      }
+      // sendImg(imageSrc)
+      // .then(response => {
+      //   console.log('response ', response);
+      // })
+      // .catch(err => {
+      //   console.log('err ', err);
+      // });
+    }
+  };
+
+
+
   return <div>
     <Toolbar />
+    <Webcam
+      audio={false}
+      height={0}
+      ref={webcamRef}
+      screenshotFormat="base64"
+      width={0}
+      videoConstraints={videoConstraints}
+    />
     <Topic>{exercise && exercise.topic ? exercise.topic.name : ''}</Topic>
     <Instrucciones>
       <MidWidth>
         <ExerciseTitle>{exercise.title}</ExerciseTitle>
         <ExerciseInstruction>
           <ExerciseTitle>Instructions</ExerciseTitle>
-          <Button variant="contained" color="primary" onClick={() => setShowInstructions(true)} icon ={'Info'} text={'Show Instructions'}/>
-          <ExerciseTitle>Hints</ExerciseTitle>
-          <Button variant="contained" color="primary" icon={'Hints'} onClick={showHints} text={'Show Hint'}/>
-        </ExerciseInstruction>
-        <ExerciseInstruction>
           {
-            showExerciseHints && exercise.hints &&
-            <StepperInstructions
-              open={showExerciseHints}
-              handleClose={() => setShowExerciseHints(false)}
-              data={{instructions: hintsToShow || []}}
-            />
+            exercise && exercise.instructions && exercise.instructions.map((instruction, index) => {
+              return (
+                <div id={index}> {index + 1} - {instruction.text}</div>
+              );
+            })
           }
         </ExerciseInstruction>
       </MidWidth>
       <MidWidth>
         <ExerciseInstruction>
+          <ExerciseTitle>Hints</ExerciseTitle>
+          <Button variant="contained" color="primary" icon={'Hints'} onClick={showHints} text={'Show Hint'}/>
+          {
+            exercise && exercise.hints && hintsToShow.map((hint, index) => {
+              return (
+                <div id={index}> {index + 1} - {hint.text}</div>
+              );
+            })
+          }
+        </ExerciseInstruction>
+        <ExerciseInstruction>
           <ExerciseTitle>Time estimated: {exercise.estimatedTime || 600} seconds</ExerciseTitle>
           <ExerciseTitle>Time expend: {timeExpend} seconds</ExerciseTitle>
         </ExerciseInstruction>
+      </MidWidth>
+      <MidWidth>
+        <ExerciseInstruction>
+          <ExerciseTitle>Documentation</ExerciseTitle>
+          <Button variant="contained" color="primary" onClick={() => setShowData(true)} icon ={'Info'} text={'Show docs'}/>
+        </ExerciseInstruction>
         {!showToolContainer &&
-          <ButtonContainer>
             <Button variant="contained" color="primary" icon={'Start'} onClick={() => setShowToolContainer(true)} text={'Start'} />
-          </ButtonContainer>
         }
         {showToolContainer &&
           <React.Fragment>
-            <ButtonContainer>
-              <Button variant="contained" color="primary" icon={'Pause'} onClick={() => setShowToolContainer(false)} text={'Pause'}/>
-              <Button variant="contained" color="primary" icon={'Test'} onClick={runCode} text={'Run Code'}/>
-            </ButtonContainer>
+            <Button variant="contained" color="primary" icon={'Pause'} onClick={() => setShowToolContainer(false)} text={'Pause'}/>
+            <Button variant="contained" color="primary" icon={'Test'} onClick={runCode} text={'Run Code'}/>
           </React.Fragment>
         }
-
       </MidWidth>
     </Instrucciones>
-    {exercise && showInstructions &&
-      <StepperInstructions
-        open={showInstructions}
-        handleClose={() => setShowInstructions(false)}
+    {negativo &&
+      <ResultDialog
+        open={negativo}
+        goToProgress={() => {
+          goToProgress();
+        }}
+        rightActionText={'Go to progress'}
+        leftActionText={'Never mind'}
+        handleClose={() => {
+          setNegativo(false);
+        }}
+        leftAction={() => {
+          setNegativo(false);
+        }}
+        message={'Try another exercise, ot get back later.'}
+        title={'We have detected a negative face'}
+      />
+    }
+    {exercise && showData &&
+      <DataDialog
+        title={'Exercise documentation'}
+        message={'Python docs about this exercise topic at the link.'}
+        leftAction={() => setShowData(false)}
+        leftActionText={'Close'}
+        url={exercise.data}
+        open={showData}
+        handleClose={() => setShowData(false)}
         data={{instructions: exercise.instructions || []}}
       />
     }
@@ -407,8 +481,8 @@ export function TutorView({dispatch, location}) {
             goToProgress();
           }
         }}
-        rightActionText={rightActionText || 'rafa'}
-        leftActionText={leftActionText || 'rafa'}
+        rightActionText={rightActionText || '-'}
+        leftActionText={leftActionText || '-'}
         handleClose={() => {
           setOpenDialog(false);
         }}
@@ -446,7 +520,6 @@ export function TutorView({dispatch, location}) {
       <SkulptConsole
         open={openRunner}
         goToProgress={() => {
-          console.log('isOkResult ', isOK);
           if(isOkResult) {
             nextExercise();
           } else {

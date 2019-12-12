@@ -37,13 +37,13 @@ const Toolbar = props => {
               <div className="logo" onClick={() => goHome()}>
           <img
             className={classes.image}
-            src="https://storage.googleapis.com/datank-exam/iconoBlocklyPython.png"
+            src="https://storage.googleapis.com/blockly-api/Group%201%20(1).png"
            />
         </div>
         <div className="right">
           {user &&
             <React.Fragment>
-              <Avatar alt="Remy Sharp" src="https://storage.googleapis.com/datank-exam/default-user.png" className={classes.avatar} />
+              <Avatar alt="Remy Sharp" src="https://storage.googleapis.com/blockly-api/Group%203.png" className={classes.avatar} />
               <Name>
                 {user ? user.name : ''}
               </Name>
