@@ -93,7 +93,7 @@ export function TutorView({dispatch, location}) {
   }, [simpleWorkspace]);
 
   setTimeout(function () {
-    if(showToolContainer && !openDialog && !openRunner) {
+    if(showToolContainer && !openDialog && !openRunner && !negativo) {
       if(timeExpend >= exercise.estimatedTime - 1) {
         setShowToolContainer(false);
         setDialogMessage(
@@ -107,9 +107,8 @@ export function TutorView({dispatch, location}) {
         setTimeExpend(exercise.estimatedTime);
       } else {
         const newTime = timeExpend + 1;
-        if(newTime % 15 == 0) {
+        if(newTime % 5 == 0) {
           capture();
-          console.log('es multiplo de 5 ', newTime);
         }
         setTimeExpend(newTime);
       }
@@ -342,8 +341,8 @@ export function TutorView({dispatch, location}) {
   };
 
   const videoConstraints = {
-    width: 400,
-    height: 400,
+    width: 160,
+    height: 160,
     facingMode: "user"
   };
 
@@ -353,20 +352,17 @@ export function TutorView({dispatch, location}) {
   const capture = function() {
     if(webcamRef && webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
-      console.log('imageSrc ', imageSrc);
-      const positivo = false;
-      if(positivo) {
-
-      } else {
-        setNegativo(true);
-      }
-      // sendImg(imageSrc)
-      // .then(response => {
-      //   console.log('response ', response);
-      // })
-      // .catch(err => {
-      //   console.log('err ', err);
-      // });
+      sendImg(imageSrc)
+      .then(response => {
+        console.log('emocion: ', response);
+        const showNegative = response == 'neutral' || response == 'aburrido';
+        if(showNegative) {
+          setNegativo(true);
+        }
+      })
+      .catch(err => {
+        console.log('err ', err);
+      });
     }
   };
 
@@ -376,10 +372,10 @@ export function TutorView({dispatch, location}) {
     <Toolbar />
     <Webcam
       audio={false}
-      height={0}
+      height={100}
       ref={webcamRef}
-      screenshotFormat="base64"
-      width={0}
+      screenshotFormat="image/jpeg"
+      width={100}
       videoConstraints={videoConstraints}
     />
     <Topic>{exercise && exercise.topic ? exercise.topic.name : ''}</Topic>
@@ -398,27 +394,24 @@ export function TutorView({dispatch, location}) {
         </ExerciseInstruction>
       </MidWidth>
       <MidWidth>
-        <ExerciseInstruction>
-          <ExerciseTitle>Hints</ExerciseTitle>
-          <Button variant="contained" color="primary" icon={'Hints'} onClick={showHints} text={'Show Hint'}/>
-          {
-            exercise && exercise.hints && hintsToShow.map((hint, index) => {
-              return (
-                <div id={index}> {index + 1} - {hint.text}</div>
-              );
-            })
-          }
-        </ExerciseInstruction>
+        <ExerciseTitle>Hints</ExerciseTitle>
+        <Button variant="contained" color="primary" icon={'Hints'} onClick={showHints} text={'Show Hint'}/>
+        {
+          exercise && exercise.hints && hintsToShow.map((hint, index) => {
+            return (
+              <div id={index}> {index + 1} - {hint.text}</div>
+            );
+          })
+        }
         <ExerciseInstruction>
           <ExerciseTitle>Time estimated: {exercise.estimatedTime || 600} seconds</ExerciseTitle>
           <ExerciseTitle>Time expend: {timeExpend} seconds</ExerciseTitle>
         </ExerciseInstruction>
       </MidWidth>
       <MidWidth>
-        <ExerciseInstruction>
-          <ExerciseTitle>Documentation</ExerciseTitle>
-          <Button variant="contained" color="primary" onClick={() => setShowData(true)} icon ={'Info'} text={'Show docs'}/>
-        </ExerciseInstruction>
+
+        <ExerciseTitle>Documentation</ExerciseTitle>
+        <Button variant="contained" color="primary" onClick={() => setShowData(true)} icon ={'Info'} text={'Show docs'}/>
         {!showToolContainer &&
             <Button variant="contained" color="primary" icon={'Start'} onClick={() => setShowToolContainer(true)} text={'Start'} />
         }
@@ -454,7 +447,7 @@ export function TutorView({dispatch, location}) {
         message={'Python docs about this exercise topic at the link.'}
         leftAction={() => setShowData(false)}
         leftActionText={'Close'}
-        url={exercise.data}
+        url={exercise.docURL}
         open={showData}
         handleClose={() => setShowData(false)}
         data={{instructions: exercise.instructions || []}}
