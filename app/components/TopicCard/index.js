@@ -71,7 +71,7 @@ export function TopicCard({data, onSelect}) {
         />
         <CardMedia
           className={classes.media}
-          image={data.urlImage || "https://storage.cloud.google.com/datank-exam/default.png"}
+          image={"images/pythoncode.png"}
           title="Python topic"
         />
         <CardContent>

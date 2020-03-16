@@ -107,7 +107,7 @@ export function TutorView({dispatch, location}) {
         setTimeExpend(exercise.estimatedTime);
       } else {
         const newTime = timeExpend + 1;
-        if(newTime % 5 == 0) {
+        if(newTime % 3 == 0 && newTime !== 1) {
           capture();
         }
         setTimeExpend(newTime);
@@ -116,6 +116,7 @@ export function TutorView({dispatch, location}) {
   }, 1000);
 
   const runCode = () => {
+    console.log('EN EL RUN CODE ');
     if(exercise.hints && exercise.hints.length > hintTimes) {
       setDialogMessage(
         <div>
@@ -194,26 +195,27 @@ export function TutorView({dispatch, location}) {
   };
 
   const testCode = () => {
-    let isOK = false;
-    let sameLineCounter = 0;
-    if(exercise.solutions && exercise.solutions.length > 1) {
-        exercise.solutions.forEach(solution => {
-          if(solution.length == codeArray.length) {
-            let sameLineCounter = 0;
-            for(let i = 0; i < solution.length; i ++){
-              if(solution[i] == codeArray[i]) {
-                sameLineCounter+= 1;
-              }
-            }
-          }
-      })
-      isOK  = true;
-    } else {
-      if(exercise.solutions.length == 1) {
-        sameLineCounter = 1;
-        isOK = true;
-      }
-    }
+    console.log('en el testocode');
+    let isOK = true;
+    let sameLineCounter = exercise.solutions.length;
+    // if(exercise.solutions && exercise.solutions.length > 1) {
+    //     exercise.solutions.forEach(solution => {
+    //       if(solution.length == codeArray.length) {
+    //         let sameLineCounter = 0;
+    //         for(let i = 0; i < solution.length; i ++){
+    //           if(solution[i] == codeArray[i]) {
+    //             sameLineCounter+= 1;
+    //           }
+    //         }
+    //       }
+    //   })
+    //   isOK  = true;
+    // } else {
+    //   if(exercise.solutions.length == 1) {
+    //     sameLineCounter = 1;
+    //     isOK = true;
+    //   }
+    // }
     setCalification(parseInt(evaluate([parseInt(exercise.complexity), parseInt(timeExpend), parseInt(hintTimes)])) + 3);
     setLeftAction('Close');
     setRightAction('Go to Menú');
@@ -287,11 +289,11 @@ export function TutorView({dispatch, location}) {
           });
       })
       .catch(err => {
-        apiErrorAction(
-            'There are no more exercises of this topic. You should try with another topic in the Menú.'
-        );
-        setOpenDialog(true);
-        // goToProgress();
+        // apiErrorAction(
+        //     'There are no more exercises of this topic. You should try with another topic in the Menú.'
+        // );
+        // setOpenDialog(true);
+        goToProgress();
       });
     })
     .catch(err => {
@@ -370,14 +372,7 @@ export function TutorView({dispatch, location}) {
 
   return <div>
     <Toolbar />
-    <Webcam
-      audio={false}
-      height={100}
-      ref={webcamRef}
-      screenshotFormat="image/jpeg"
-      width={100}
-      videoConstraints={videoConstraints}
-    />
+
     <Topic>{exercise && exercise.topic ? exercise.topic.name : ''}</Topic>
     <Instrucciones>
       <MidWidth>
@@ -530,6 +525,14 @@ export function TutorView({dispatch, location}) {
         title={'Python console'}
       />
     }
+    <Webcam
+      audio={false}
+      height={100}
+      ref={webcamRef}
+      screenshotFormat="image/jpeg"
+      width={100}
+      videoConstraints={videoConstraints}
+    />
   </div>;
 }
 
