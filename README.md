@@ -7,8 +7,10 @@ Desarrollado con React
 <br />
 Integración de librerías:
 <br />
-- Logica difusa.
+- Lógica difusa.
 <br />
 - Reconocimiento de emociones.
 <br />
 - Material UI.
+<br />
+- Blockly.
