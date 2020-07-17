@@ -32,7 +32,7 @@ export const ExerciseTitle = styled.div`
 `;
 
 export const MidWidth = styled.div`
-  width: 50%;
+  width: 33%;
 `;
 export const Topic = styled.div`
   font-size: 50px;

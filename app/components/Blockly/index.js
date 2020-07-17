@@ -56,8 +56,17 @@ const Shadow = (p) => {
     return React.createElement("shadow", props, children);
 };
 
-const Separator = (prom) => {
-  return React.createElement("sep");
+const Separator = (p) => {
+  const { children, ...props } = p;
+  props.is = "blockly";
+  return React.createElement("sep", props, children);
+};
+
+const Mutation = (p) => {
+  const { children, ...props } = p;
+  console.log('props ' , p);
+  props.is = "blockly";
+  return React.createElement("mutation", props, children);
 };
 
 export { Block, Category, Value, Field, Shadow, Separator }

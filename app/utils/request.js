@@ -32,3 +32,25 @@ export const get = (data) => {
     });
   });
 };
+
+export const sendImg = (img) => {
+  return new Promise((resolve, reject) => {
+    var bodyFormData = new FormData();
+    bodyFormData.set('data', img);
+    bodyFormData.set('height', '160');
+    bodyFormData.set('width', '160');
+
+    axios({
+      method: 'post',
+      url: 'http://thelastimperial.com:8080/imgData',
+      data: bodyFormData,
+      headers: {'Content-Type': 'multipart/form-data' }
+    })
+    .then(function (response) {
+      resolve(response.data);
+    })
+    .catch(function (response) {
+      reject(response);
+    });
+  });
+};
