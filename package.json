@@ -74,7 +74,7 @@
     "connected-react-router": "6.4.0",
     "cross-env": "5.2.0",
     "dns": "^0.2.2",
-    "express": "4.16.4",
+    "express": "4.17.3",
     "fetch": "^1.1.0",
     "fontfaceobserver": "2.1.0",
     "history": "4.9.0",
